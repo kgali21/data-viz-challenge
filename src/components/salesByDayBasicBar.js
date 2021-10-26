@@ -6,13 +6,7 @@ import { Bar } from '@visx/shape';
 import { scaleLinear, scaleBand } from '@visx/scale';
 
 const SalesByDay = () => {
-    const data = salesData
-
-   type BarsProps = {
-        width: number;
-        height: number;
-        events?: boolean;
-      };
+    const data = salesData;
 
     const width = 500;
     const height = 500;
