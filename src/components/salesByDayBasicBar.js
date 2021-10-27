@@ -23,10 +23,8 @@ const SalesByDay = () => {
 
     const y = d =>{ 
         if(d.Sales.includes('$') === true) {
-            console.log('y', parseInt(d.Sales.slice(1), 10))
             return parseInt(d.Sales.slice(1))
         } else {
-            console.log('y', parseInt(d.Sales, 10))
             return parseInt(d.Sales, 10)
         }
 };

@@ -1,16 +1,14 @@
 import './App.css';
 
-import SalesByDay from './components/salesByDayBasicBar.js';
-import SalesByDayChart from './components/salesByDayStacked';
+// import SalesByDay from './components/salesByDayBasicBar.js';
+// import SalesByDayChart from './components/salesByDayStacked.js';
+import SalesBarStack from './components/salesByBarStack.js';
 
 function App() {
   return (
     <>
-    <div className="App">
-      <SalesByDayChart width={500} height={300}/>
-    </div>
     <div>
-      <SalesByDay />
+      <SalesBarStack width={500} height={500} event={false} />
     </div>
     </>
   );
