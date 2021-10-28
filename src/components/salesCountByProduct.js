@@ -13,6 +13,7 @@ import salesData from '../data/dataSales.js';
 const green = '#71EEB8';
 const coral = '#FF7F50';
 const blue = '#87CEEB';
+const yellow = '#FFFF00';
 const background = 'grey'
 const defaultMargins = {
   top: 40,
@@ -30,13 +31,13 @@ const toolTipStyles = {
 
 const data = salesData;
 
-// console.log(data, 'predata')
+console.log(data, 'predata')
 
 const dataMassaged = data.map(newObj => {
- const returnObj = ({date: newObj.Date, salesPerson: newObj.Salesperson, sales: newObj.Sales})
+ const returnObj = ({date: newObj.Date, product: newObj.Product === 'Sandas' ? null : newObj.Product , sales: newObj.Sales})
   return returnObj
 }).reduce((a, c) => {
-  let x = a.find(e => e.date === c.date && e.salesPerson === c.salesPerson);
+  let x = a.find(e => e.date === c.date && e.product === c.product);
   if(!x) {
     a.push(Object.assign({}, c))
   } else {
@@ -46,40 +47,44 @@ const dataMassaged = data.map(newObj => {
 }, []).map(newObj => {
   return ({
     date: newObj.date,
-    [newObj.salesPerson]: newObj.sales,
+    [newObj.product]: newObj.sales,
   })
 })
+
+console.log(dataMassaged, 'byProductByDateByCount')
 
 const result = Object.values(dataMassaged.reduce((a, c) => {
     a[c.date] = Object.assign(a[c.date] || {}, c);
     return a;
 }, {}))
 
-// console.log(result, 'results')
+console.log(result, 'results')
 // const salesPersonSales = newObject.Sales.includes('$') ? parseInt(newObject.Sales.slice(1)) : parseInt(newObject.Sales, 10)
 // x.sales.includes('$') ? parseInt(x.sales.slice(1)) + parseInt(c.sales.slice(1)) : parseInt(x.sales, 10) + parseInt(c.sales, 10)
 
-const keys = Object.values(data.map(newData => newData.Salesperson))
+const keys = Object.values(data.map(newData => newData.Product))
 const newKeys = [...new Set(keys)]
 
-// console.log(newKeys, 'keys')
+console.log(newKeys, 'keys')
 
 
 // rework this and you get the first graph
 const salesTotals = result.map(newRes => {
-  const newObj = Object.values(newRes).splice(1);
+    const newObj = Object.values(newRes).splice(1);
+    
+    const newNewObj = newObj.map(newEle => {
+      return newEle
+    })
   
-  const newNewObj = newObj.map(newEle => {
-    return newEle
+    if(newNewObj.includes('$')){
+      return parseInt(newNewObj.slice(1), newNewObj.slice(1))
+    } else {
+      return parseInt(newNewObj, 10)
+    }
+  
   })
 
-  if(newNewObj.includes('$')){
-    return parseInt(newNewObj.slice(1), newNewObj.slice(1))
-  } else {
-    return parseInt(newNewObj, 10)
-  }
-
-})
+console.log(salesTotals, 'salestotals')
 
 const parseDate = timeParse("%Y-%m-%d");
 const format = timeFormat("%b %d");
@@ -94,12 +99,12 @@ const salesScale = scaleLinear({
 });
 const colorScale = scaleOrdinal({
   domain: newKeys,
-  range: [green, coral, blue]
+  range: [green, coral, blue, yellow]
 });
 
 let tooltipTimeout;
 
-const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }) => {
+const SalesByProduct = ({ width, height, event = false, margin = defaultMargins }) => {
   const {
     tooltipOpen,
     tooltipTop,
@@ -235,4 +240,4 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
   );
 };
 
-export default SalesBarStack;
+export default SalesByProduct;

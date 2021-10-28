@@ -33,20 +33,20 @@ const data = salesData;
 // console.log(data, 'predata')
 
 const dataMassaged = data.map(newObj => {
- const returnObj = ({date: newObj.Date, salesPerson: newObj.Salesperson, sales: newObj.Sales})
+ const returnObj = ({date: newObj.Date, salesPerson: newObj.Salesperson, revenue: newObj.Revenue.slice(1)})
   return returnObj
 }).reduce((a, c) => {
   let x = a.find(e => e.date === c.date && e.salesPerson === c.salesPerson);
   if(!x) {
     a.push(Object.assign({}, c))
   } else {
-    x.sales = Number(c.sales) + Number(x.sales)
+    x.sales = Number(c.revenue) + Number(x.revenue)
   }
   return a
 }, []).map(newObj => {
   return ({
     date: newObj.date,
-    [newObj.salesPerson]: newObj.sales,
+    [newObj.salesPerson]: newObj.revenue,
   })
 })
 
@@ -99,7 +99,7 @@ const colorScale = scaleOrdinal({
 
 let tooltipTimeout;
 
-const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }) => {
+const RevenueBarStack = ({ width, height, event = false, margin = defaultMargins }) => {
   const {
     tooltipOpen,
     tooltipTop,
@@ -175,7 +175,7 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
                         onMouseMove={(event) => {
                           if (tooltipTimeout) clearTimeout(tooltipTimeout);
                           const top = event.clientY;
-                          const left = bar.x + bar.width;
+                          const left = bar.x;
                           showTooltip({
                             tooltipData: bar,
                             tooltipTop: top,
@@ -225,7 +225,7 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
           <div style={{ color: colorScale(tooltipData.key) }}>
             <strong>{tooltipData.key}</strong>
           </div>
-          <div>{tooltipData.bar.data[tooltipData.key]}sales</div>
+          <div>${tooltipData.bar.data[tooltipData.key]} in Revenue</div>
           <div>
             <small>{formatDate(getDate(tooltipData.bar.data))}</small>
           </div>
@@ -235,4 +235,4 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
   );
 };
 
-export default SalesBarStack;
+export default RevenueBarStack;

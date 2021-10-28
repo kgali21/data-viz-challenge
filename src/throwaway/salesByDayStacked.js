@@ -79,7 +79,7 @@ const SalesByDayChart = ({ width, height, events = false, margin = defaultMargin
 
     if(width < 10) return null;
     const xMax = width;
-    const yMax = height - margin.top - 100;
+    const yMax = height - margin.top - 50;
 
     dateScale.rangeRound([0, xMax]);
     salesScale.range([yMax, 0])
