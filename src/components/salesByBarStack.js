@@ -66,15 +66,18 @@ const newKeys = [...new Set(keys)]
 
 console.log(newKeys, 'keys')
 
+
+// rework this and you get the first graph
 const salesTotals = result.reduce((allTotals, currentDate) => {
   const totalSales = dataMassaged.reduce((dailySales, k) => {
-    dailySales += Number(currentDate[k])
+    dailySales = Number(dailySales) + Number(currentDate[k])
     return dailySales
   }, 0)
 
   allTotals.push(totalSales);
   return allTotals;
 }, []);
+
 
 console.log(salesTotals, 'salesTotals')
 
