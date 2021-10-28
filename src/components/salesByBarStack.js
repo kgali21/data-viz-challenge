@@ -75,7 +75,7 @@ const salesTotals = result.map(newRes => {
   })
 
   if(newNewObj.includes('$')){
-    return parseInt(newNewObj.slice(1), newNewObj)
+    return parseInt(newNewObj.slice(1), newNewObj.slice(1))
   } else {
     return parseInt(newNewObj, 10)
   }
@@ -91,9 +91,9 @@ const formatDate = (date) => format(parseDate(date));
 
 const getDate = (d) => d.date;
 
-const dateScale = scaleBand({ domain: result.map(getDate), padding: .5 });
+const dateScale = scaleBand({ domain: result.map(getDate), padding: .075 });
 const salesScale = scaleLinear({
-  domain: [0, ...salesTotals],
+  domain: [0, Math.max(...salesTotals)],
   nice: true
 });
 const colorScale = scaleOrdinal({
@@ -122,13 +122,13 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
   const yMax = height - margin.top - 40;
 
   dateScale.rangeRound([0, xMax]);
-  salesScale.range([yMax, 0]);
+  salesScale.rangeRound([yMax, 0]);
 
   console.log({result, newKeys}, 'resultsnewKeys');
 
 
   return width < 10 ? null : (
-    <div style={{ position: "relative" }}>
+    <div style={{ position: "relative", justifySelf: 'center', alignSelf:'center' }}>
       <svg ref={containerRef} width={width} height={height}>
         <rect 
           x={0}
@@ -152,7 +152,6 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
         <Group top={margin.top}>
             <BarStack 
               data={result}
-
               keys={newKeys}
               x={getDate}
               xScale={dateScale}
@@ -180,8 +179,8 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
                         }}
                         onMouseMove={(event) => {
                           if (tooltipTimeout) clearTimeout(tooltipTimeout);
-                          const top = event.clientY - margin.top - bar.height;
-                          const left = bar.x + bar.width / 2;
+                          const top = event.clientY;
+                          const left = bar.x + bar.width;
                           showTooltip({
                             tooltipData: bar,
                             tooltipTop: top,
