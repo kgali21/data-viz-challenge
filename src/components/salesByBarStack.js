@@ -44,34 +44,6 @@ console.log(data, 'predata')
 //   return acc
 // }, [])
 
-// const dataMassaged = data.map(newObject => {
-//   // const salesPersonSales = newObject.Sales.includes('$') ? parseInt(newObject.Sales.slice(1)) : parseInt(newObject.Sales, 10)
-  
-
-// // return ({
-// //   date: newObject.Date,
-// //   salesPerson: [newObject.Salesperson]
-// // })
-
-// })
-
-// const dataMassaged = data.reduce((a, v) => {
-//   if(a[v.Date]) {
-//     a[v.Date].Sales = [a[v.Date].Sales, v.Sales, v]
-//   } else {
-//     a[v.Date] = v
-//   }
-  
-//   return a
-// }, {})
-
-// const dataMassaged = data.map((q, i) => {
-//   return {
-//     ['date' + (i + 1)]: q.Date,
-//     joe: q['joe' + (i + 1)].Salesperson,
-//     amy: q['amy' + (i + 1)].Salesperson
-//   }
-// })
 
 const dataMassaged = data.map(newObj => {
  const returnObj = ({date: newObj.Date, salesPerson: newObj.Salesperson, sales: newObj.Sales})
@@ -86,24 +58,16 @@ const dataMassaged = data.map(newObj => {
   return a
 }, [])
 
+const newObj = Object.values(dataMassaged);
 
+console.log(newObj, 'newobj')
 
 // const salesPersonSales = newObject.Sales.includes('$') ? parseInt(newObject.Sales.slice(1)) : parseInt(newObject.Sales, 10)
 // x.sales.includes('$') ? parseInt(x.sales.slice(1)) + parseInt(c.sales.slice(1)) : parseInt(x.sales, 10) + parseInt(c.sales, 10)
 
 console.log(dataMassaged, 'merged?')
 
-// const dataMassaged = data.reduce((basket, items) => {
-//   for (const [date, sales] of Object.entries(items)){
-//     if(!basket[date]){
-//       basket[date] = items.Sales
-//     }
-//     basket[date] += sales
-//   }
-//   return basket
-// }, [])
-
-const keys = Object.keys(data.map(newData => ( newData.Date)))
+const keys = Object.keys(data.map(newData => ( newData.Salesperson)))
 
 const salesTotals = data.reduce((allTotals, currentDate) => {
   const totalSales = keys.reduce((dailySales, k) => {
