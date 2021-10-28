@@ -89,9 +89,9 @@ const parseDate = timeParse("%Y-%m-%d");
 const format = timeFormat("%b %d");
 const formatDate = (date) => format(parseDate(date));
 
-const getDate = (d) => d.Date;
+const getDate = (d) => d.date;
 
-const dateScale = scaleBand({ domain: data.map(getDate), padding: 0.2 });
+const dateScale = scaleBand({ domain: result.map(getDate), padding: .5 });
 const salesScale = scaleLinear({
   domain: [0, ...salesTotals],
   nice: true
@@ -119,7 +119,7 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
   if(width < 10) return null;
 
   const xMax = width;
-  const yMax = height - margin.top - 100;
+  const yMax = height - margin.top - 40;
 
   dateScale.rangeRound([0, xMax]);
   salesScale.range([yMax, 0]);
