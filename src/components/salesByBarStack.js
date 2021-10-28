@@ -60,7 +60,6 @@ console.log(result, 'results')
 // const salesPersonSales = newObject.Sales.includes('$') ? parseInt(newObject.Sales.slice(1)) : parseInt(newObject.Sales, 10)
 // x.sales.includes('$') ? parseInt(x.sales.slice(1)) + parseInt(c.sales.slice(1)) : parseInt(x.sales, 10) + parseInt(c.sales, 10)
 
-console.log(dataMassaged, 'merged?')
 const keys = Object.values(data.map(newData => newData.Salesperson))
 const newKeys = [...new Set(keys)]
 
@@ -76,7 +75,7 @@ const salesTotals = result.map(newRes => {
   })
 
   if(newNewObj.includes('$')){
-    return parseInt(newNewObj.slice(1))[parseInt(newNewObj, 10)]
+    return parseInt(newNewObj.slice(1), newNewObj)
   } else {
     return parseInt(newNewObj, 10)
   }
