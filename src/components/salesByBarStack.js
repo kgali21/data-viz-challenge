@@ -230,6 +230,7 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
             <strong>{tooltipData.key}</strong>
           </div>
           <div>{tooltipData.bar.data[tooltipData.key]}sales</div>
+          <div>{salesTotals}</div>
           <div>
             <small>{formatDate(getDate(tooltipData.bar.data))}</small>
           </div>

@@ -68,16 +68,16 @@ console.log(poppedKeys, 'keys')
 
 
 // rework this and you get the first graph
-// const salesTotals = result.map(newRes => {
-//     const newObj = Object.values(newRes).splice(1);
+const salesTotals = result.map(newRes => {
+    const newObj = Object.values(newRes).splice(1);
     
-//     const newNewObj = newObj.map(newEle => {
-//       return newEle
-//     })
+    const newNewObj = newObj.map(newEle => {
+      return newEle
+    })
   
-//     return parseInt(newNewObj, 10)
+    return parseInt(newNewObj, 10)
   
-//   })
+  })
 
 //   const salesTotals = result.map(product => {
 //     const total = Object.values(product).toString().split(',')
@@ -87,11 +87,11 @@ console.log(poppedKeys, 'keys')
 //     return newProduct;
 //   })
 
-const salesTotals = result.map(product => {
-    const total = parseInt(product.Shoes.toString().replace('$', '')) + parseInt(product.Socks.toString().replace('$', '')) + parseInt(product.Sandals.toString().replace('$', ''))
-    
-    return total;
-  })
+// const salesTotals = result.map(product => {
+//     // const total = parseInt(product.Shoes.toString().replace('$', '')) + parseInt(product.Socks.toString().replace('$', '')) + parseInt(product.Sandals.toString().replace('$', ''))
+//     
+//     return totals;
+//   })
 
 
 
