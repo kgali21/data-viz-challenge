@@ -56,18 +56,25 @@ const dataMassaged = data.map(newObj => {
     x.sales = Number(c.sales) + Number(x.sales)
   }
   return a
-}, [])
+}, []).map(newObj => {
 
-const newObj = Object.values(dataMassaged);
+  return ({
+    date: newObj.date,
+    [newObj.salesPerson]: newObj.sales,
+  })
+})
 
-console.log(newObj, 'newobj')
+const result = Object.values(dataMassaged.reduce((a, c) => {
+    a[c.date] = Object.assign(a[c.date] || {}, c);
+    return a;
+}, {}))
 
+console.log(result, 'results')
 // const salesPersonSales = newObject.Sales.includes('$') ? parseInt(newObject.Sales.slice(1)) : parseInt(newObject.Sales, 10)
 // x.sales.includes('$') ? parseInt(x.sales.slice(1)) + parseInt(c.sales.slice(1)) : parseInt(x.sales, 10) + parseInt(c.sales, 10)
 
 console.log(dataMassaged, 'merged?')
-
-const keys = Object.keys(data.map(newData => ( newData.Salesperson)))
+const keys = Object.keys(result.map(newData => ( newData.salesPerson)))
 
 const salesTotals = data.reduce((allTotals, currentDate) => {
   const totalSales = keys.reduce((dailySales, k) => {
@@ -78,6 +85,8 @@ const salesTotals = data.reduce((allTotals, currentDate) => {
   allTotals.push(totalSales);
   return allTotals;
 }, []);
+
+console.log(salesTotals, 'salesTotals')
 
 const parseDate = timeParse("%Y-%m-%d");
 const format = timeFormat("%b %d");
@@ -118,7 +127,7 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
   dateScale.rangeRound([0, xMax]);
   salesScale.range([yMax, 0]);
 
-  console.log({data, keys});
+  console.log({result, keys}, 'resultskeys');
 
 
   return width < 10 ? null : (
@@ -145,7 +154,7 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
         />
         <Group top={margin.top}>
             <BarStack 
-              data={data}
+              data={result}
 
               keys={['']}
               x={getDate}
