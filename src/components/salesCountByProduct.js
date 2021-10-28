@@ -34,7 +34,7 @@ const data = salesData;
 console.log(data, 'predata')
 
 const dataMassaged = data.map(newObj => {
- const returnObj = ({date: newObj.Date, product: newObj.Product === 'Sandas' ? null : newObj.Product , sales: newObj.Sales})
+ const returnObj = ({date: newObj.Date, product: newObj.Product, sales: newObj.Sales})
   return returnObj
 }).reduce((a, c) => {
   let x = a.find(e => e.date === c.date && e.product === c.product);
@@ -59,32 +59,44 @@ const result = Object.values(dataMassaged.reduce((a, c) => {
 }, {}))
 
 console.log(result, 'results')
-// const salesPersonSales = newObject.Sales.includes('$') ? parseInt(newObject.Sales.slice(1)) : parseInt(newObject.Sales, 10)
-// x.sales.includes('$') ? parseInt(x.sales.slice(1)) + parseInt(c.sales.slice(1)) : parseInt(x.sales, 10) + parseInt(c.sales, 10)
 
 const keys = Object.values(data.map(newData => newData.Product))
-const newKeys = [...new Set(keys)]
+const newKeys = [...new Set(keys)];
+const poppedKeys = newKeys.pop();
 
-console.log(newKeys, 'keys')
+console.log(poppedKeys, 'keys')
 
 
 // rework this and you get the first graph
-const salesTotals = result.map(newRes => {
-    const newObj = Object.values(newRes).splice(1);
+// const salesTotals = result.map(newRes => {
+//     const newObj = Object.values(newRes).splice(1);
     
-    const newNewObj = newObj.map(newEle => {
-      return newEle
-    })
+//     const newNewObj = newObj.map(newEle => {
+//       return newEle
+//     })
   
-    if(newNewObj.includes('$')){
-      return parseInt(newNewObj.slice(1), newNewObj.slice(1))
-    } else {
-      return parseInt(newNewObj, 10)
-    }
+//     return parseInt(newNewObj, 10)
   
+//   })
+
+//   const salesTotals = result.map(product => {
+//     const total = Object.values(product).toString().split(',')
+//     const newProduct = total.map(newVals => {
+//         return parseInt(newVals.replace('$', ''))
+//     }).slice(1)
+//     return newProduct;
+//   })
+
+const salesTotals = result.map(product => {
+    const total = parseInt(product.Shoes.toString().replace('$', '')) + parseInt(product.Socks.toString().replace('$', '')) + parseInt(product.Sandals.toString().replace('$', ''))
+    
+    return total;
   })
 
-console.log(salesTotals, 'salestotals')
+
+
+  console.log(salesTotals, 'byProductSales')
+
 
 const parseDate = timeParse("%Y-%m-%d");
 const format = timeFormat("%b %d");
@@ -126,7 +138,7 @@ const SalesByProduct = ({ width, height, event = false, margin = defaultMargins 
 
   console.log({result, newKeys}, 'resultsNewKeys');
 
-  return width < 10 ? null : (
+  return width < 10 || height === 0 ? null : (
     <div style={{ position: "relative", left: '2em', top: '2em' }}>
       <svg ref={containerRef} width={width} height={height}>
         <rect 
@@ -230,7 +242,7 @@ const SalesByProduct = ({ width, height, event = false, margin = defaultMargins 
           <div style={{ color: colorScale(tooltipData.key) }}>
             <strong>{tooltipData.key}</strong>
           </div>
-          <div>{tooltipData.bar.data[tooltipData.key]}sales</div>
+          <div>{tooltipData.bar.data[tooltipData.key]} salesCount</div>
           <div>
             <small>{formatDate(getDate(tooltipData.bar.data))}</small>
           </div>

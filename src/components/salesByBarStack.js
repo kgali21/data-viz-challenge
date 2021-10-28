@@ -66,19 +66,23 @@ const newKeys = [...new Set(keys)]
 
 
 // rework this and you get the first graph
-const salesTotals = result.map(newRes => {
-  const newObj = Object.values(newRes).splice(1);
+// const salesTotals = result.map(newRes => {
+//   const newObj = Object.values(newRes).splice(1);
   
-  const newNewObj = newObj.map(newEle => {
-    return newEle
-  })
+//   const newNewObj = newObj.map(newEle => {
+//     return newEle
+//   })
 
-  if(newNewObj.includes('$')){
-    return parseInt(newNewObj.slice(1), newNewObj.slice(1))
-  } else {
-    return parseInt(newNewObj, 10)
-  }
+//   if(newNewObj.includes('$')){
+//     return parseInt(newNewObj.slice(1), newNewObj.slice(1))
+//   } else {
+//     return parseInt(newNewObj, 10)
+//   }
+// })
 
+const salesTotals = result.map(day => {
+  const total = parseInt(day.Amy.toString().replace('$', '')) + parseInt(day.Joe.toString().replace('$', ''))
+  return total;
 })
 
 const parseDate = timeParse("%Y-%m-%d");
