@@ -68,15 +68,20 @@ console.log(newKeys, 'keys')
 
 
 // rework this and you get the first graph
-const salesTotals = result.reduce((allTotals, currentDate) => {
-  const totalSales = dataMassaged.reduce((dailySales, k) => {
-    dailySales = Number(dailySales) + Number(currentDate[k])
-    return dailySales
-  }, 0)
+const salesTotals = result.map(newRes => {
+  const newObj = Object.values(newRes).splice(1);
+  
+  const newNewObj = newObj.map(newEle => {
+    return newEle
+  })
 
-  allTotals.push(totalSales);
-  return allTotals;
-}, []);
+  if(newNewObj.includes('$')){
+    return parseInt(newNewObj.slice(1))[parseInt(newNewObj, 10)]
+  } else {
+    return parseInt(newNewObj, 10)
+  }
+
+})
 
 
 console.log(salesTotals, 'salesTotals')
@@ -211,11 +216,11 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
         justifyContent: "center",
         fontSize: 14
       }}>
-        {/* <LegendOrdinal
+        <LegendOrdinal
           scale={colorScale}
           direction="row"
           labelMargin="0 15px 0 0"
-        /> */}
+        />
       </div>
       {tooltipOpen && tooltipData && (
         <TooltipInPortal 
