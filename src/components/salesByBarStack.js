@@ -32,19 +32,6 @@ const data = salesData;
 
 console.log(data, 'predata')
 
-
-// const result = data.reduce((acc, el) => {
-//   if((acc.filter((ele, _, data) => ele.Date === el.Date))){
-//     data.push(el);
-//   } 
-//   // else {
-//   //   let filtered = acc.find(ele => ele.Date === el.Date);
-//   //   filtered.Sales = parseFloat(filtered.Sales) + parseFloat(el.Sales)
-//   // }
-//   return acc
-// }, [])
-
-
 const dataMassaged = data.map(newObj => {
  const returnObj = ({date: newObj.Date, salesPerson: newObj.Salesperson, sales: newObj.Sales})
   return returnObj
@@ -74,10 +61,13 @@ console.log(result, 'results')
 // x.sales.includes('$') ? parseInt(x.sales.slice(1)) + parseInt(c.sales.slice(1)) : parseInt(x.sales, 10) + parseInt(c.sales, 10)
 
 console.log(dataMassaged, 'merged?')
-const keys = Object.keys(result.map(newData => ( newData.salesPerson)))
+const keys = Object.values(data.map(newData => newData.Salesperson))
+const newKeys = [...new Set(keys)]
 
-const salesTotals = data.reduce((allTotals, currentDate) => {
-  const totalSales = keys.reduce((dailySales, k) => {
+console.log(newKeys, 'keys')
+
+const salesTotals = result.reduce((allTotals, currentDate) => {
+  const totalSales = dataMassaged.reduce((dailySales, k) => {
     dailySales += Number(currentDate[k])
     return dailySales
   }, 0)
@@ -100,7 +90,7 @@ const salesScale = scaleLinear({
   nice: true
 });
 const colorScale = scaleOrdinal({
-  domain: keys,
+  domain: newKeys,
   range: [green, coral, blue]
 });
 
@@ -127,7 +117,7 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
   dateScale.rangeRound([0, xMax]);
   salesScale.range([yMax, 0]);
 
-  console.log({result, keys}, 'resultskeys');
+  console.log({result, newKeys}, 'resultsnewKeys');
 
 
   return width < 10 ? null : (
@@ -156,7 +146,7 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
             <BarStack 
               data={result}
 
-              keys={['']}
+              keys={newKeys}
               x={getDate}
               xScale={dateScale}
               yScale={salesScale}
