@@ -30,10 +30,15 @@ const toolTipStyles = {
   color: "white"
 }
 
-type TooltipData = {
+interface SalesByDate {
     date: string;
     Joe: number;
     Amy: number;
+}
+
+interface TooltipData extends SalesByDate {
+  bar?: any;
+  key?: any;
 }
 
 export type BarStackProps = {
@@ -43,7 +48,16 @@ export type BarStackProps = {
     events?: boolean
 }
 
-const data = salesData;
+type SalesData = {
+  Date: string;
+  "Item Cost": string;
+  Product: string;
+  Revenue: string;
+  Sales: string | number;
+  Salesperson: string;
+}
+
+const data: SalesData[] = salesData;
 
 const dataMassaged = data.map(newObj => {
  const returnObj = ({date: newObj.Date, salesPerson: newObj.Salesperson, sales: newObj.Sales})
@@ -53,7 +67,7 @@ const dataMassaged = data.map(newObj => {
   if(!x) {
     a.push(Object.assign({}, c))
   } else {
-    x.sales = Number(c.sales) + Number(x.sales)
+    (x as any).sales = Number(c.sales) + Number((x as any).sales)
   }
   return a
 }, []).map((newObj: any) => {
@@ -63,14 +77,18 @@ const dataMassaged = data.map(newObj => {
   })
 })
 
-const result = Object.values(dataMassaged.reduce((a, c) => {
+interface Accumulator {
+  [key: string]: SalesByDate
+}
+
+const result:SalesByDate[] = Object.values(dataMassaged.reduce((a: Accumulator, c) => {
     a[c.date] = Object.assign(a[c.date] || {}, c);
     return a;
 }, {}))
 
 
-const keys = Object.values(data.map(newData => newData.Salesperson))
-const newKeys = [...new Set(keys)];
+const keys: string[] = Object.values(data.map(newData => newData.Salesperson))
+const newKeys: string[] = [...new Set(keys)];
 
 
 const salesTotals = result.map((day): number => {
@@ -88,9 +106,9 @@ const salesTotals = result.map((day): number => {
 
 const parseDate = timeParse("%Y-%m-%d");
 const format = timeFormat("%b %d");
-const formatDate = (date: string) => format(parseDate(date));
+const formatDate = (date: string) => format(parseDate(date) as Date);
 
-const getDate = (d: string) => d.Date;
+const getDate = (d: SalesByDate) => d.date;
 
 const dateScale = scaleBand<string>({ domain: result.map(getDate), padding: .3 });
 const salesScale = scaleLinear<number>({
@@ -186,7 +204,7 @@ const SalesBarStack = ({ width, height, events = false, margin = defaultMargins 
                             tooltipData: bar,
                             tooltipTop: top,
                             tooltipLeft: left
-                          })
+                          } as any)
                         }}
                       />
                     )})
@@ -228,13 +246,13 @@ const SalesBarStack = ({ width, height, events = false, margin = defaultMargins 
           left={tooltipLeft}
           style={toolTipStyles}
         >
-          <div style={{ color: colorScale(tooltipData.key) }}>
-            <strong>{tooltipData.key}</strong>
+          <div style={{ color: colorScale(tooltipData.date) }}>
+            <strong>{tooltipData.date}</strong>
           </div>
           <div>{tooltipData.bar.data[tooltipData.key]}sales</div>
           <div>{salesTotals}</div>
           <div>
-            <small>{formatDate(getDate(tooltipData.bar.data))}</small>
+            <small>{formatDate(getDate(tooltipData.bar.date))}</small>
           </div>
         </TooltipInPortal>
       )}
