@@ -6,24 +6,28 @@ import { AxisBottom, AxisRight } from '@visx/axis';
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { timeFormat, timeParse } from 'd3-time-format';
 import { useTooltipInPortal, defaultStyles, useTooltip } from '@visx/tooltip';
+import { SeriesPoint } from '@visx/shape/lib/types';
 import { LegendOrdinal } from '@visx/legend';
 
 import salesData from '../data/dataSales.js';
 
-// type TooltipData = {
-//     bar: SeriesPoint<salesData>;
-//     key: SalesData;
-//     index: number;
-//     height: number;
-//     width: number;
-// }
+type TooltipData = {
+    bar: SeriesPoint<string>;
+    key: string;
+    index: number;
+    height: number;
+    width: number;
+    x: number;
+    y: number;
+    color: string
+}
 
-// export type BarStackProps = {
-//     width: number;
-//     height: number;
-//     margin?: { top: number, right: number, bottom: number, left:number};
-//     events?: boolean
-// }
+export type BarStackProps = {
+    width: number;
+    height: number;
+    margin?: { top: number, right: number, bottom: number, left:number};
+    events?: boolean
+}
 
 const green = '#71EEB8';
 const coral = '#FF7F50';
@@ -74,10 +78,17 @@ const keys = Object.values(data.map(newData => newData.Salesperson))
 const newKeys = [...new Set(keys)]
 
 
-const salesTotals = result.map(day => {
+const salesTotals = result.map(day: string => {
   const total = parseInt(day.Amy.toString().replace('$', '')) + parseInt(day.Joe.toString().replace('$', ''))
   return total;
 })
+
+
+// typescript attempt 
+// let salesTotals = new Map(result);
+// salesTotals.get(result);
+// salesTotals.set(result, parseInt(result.Amy.toString().replace('$', '')) + parseInt(result.Joe.toString().replace('$', '')))
+
 
 const parseDate = timeParse("%Y-%m-%d");
 const format = timeFormat("%b %d");
@@ -85,8 +96,8 @@ const formatDate = (date) => format(parseDate(date) as Date);
 
 const getDate = (d) => d.date;
 
-const dateScale = scaleBand({ domain: result.map(getDate), padding: .3 });
-const salesScale = scaleLinear({
+const dateScale = scaleBand<string>({ domain: result.map(getDate), padding: .3 });
+const salesScale = scaleLinear<number>({
   domain: [0, Math.max(...salesTotals)],
   nice: true
 });
@@ -95,7 +106,7 @@ const colorScale = scaleOrdinal({
   range: [green, coral, blue]
 });
 
-let tooltipTimeout;
+let tooltipTimeout: number;
 
 const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }) => {
   const {
@@ -105,7 +116,7 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
     hideTooltip,
     showTooltip,
     tooltipData,
-  } = useTooltip();
+  } = useTooltip<TooltipData>();
 
   const { containerRef, TooltipInPortal } = useTooltipInPortal();
 

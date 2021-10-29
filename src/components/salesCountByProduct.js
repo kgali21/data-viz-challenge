@@ -98,7 +98,7 @@ const formatDate = (date) => format(parseDate(date));
 
 const getDate = (d) => d.date;
 
-const dateScale = scaleBand({ domain: result.map(getDate), padding: .075 });
+const dateScale = scaleBand({ domain: result.map(getDate), padding: .3 });
 const salesScale = scaleLinear({
   domain: [0, Math.max(...salesTotals)],
   nice: true
