@@ -63,11 +63,9 @@ const preResult = Object.values(dataMassaged.reduce((a, c) => {
     return a;
 }, {}))
 
-// console.log(result, 'results')
 
 const keys = Object.values(data.map(newData => newData.Product))
 const newKeys = [...new Set(keys)];
-// const poppedKeys = newKeys.pop();
 
 const result = preResult.map(day => {
   newKeys.forEach(key => {
@@ -78,7 +76,6 @@ const result = preResult.map(day => {
   return day;
 });
 
-// rework this and you get the first graph
 const salesTotals = result.map(day => {
   let total = 0;
   newKeys.forEach(key => {

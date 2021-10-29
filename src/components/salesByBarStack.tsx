@@ -11,23 +11,6 @@ import { LegendOrdinal } from '@visx/legend';
 
 import salesData from '../data/dataSales.js';
 
-type TooltipData = {
-    bar: SeriesPoint<string>;
-    key: string;
-    index: number;
-    height: number;
-    width: number;
-    x: number;
-    y: number;
-    color: string
-}
-
-export type BarStackProps = {
-    width: number;
-    height: number;
-    margin?: { top: number, right: number, bottom: number, left:number};
-    events?: boolean
-}
 
 const green = '#71EEB8';
 const coral = '#FF7F50';
@@ -46,6 +29,27 @@ const toolTipStyles = {
   backgroundColor: "rgba(0,0,0,0.9)",
   color: "white"
 }
+
+type PeopleKeys = typeof newKeys
+type TooltipData = {
+    bar: SeriesPoint<PeopleKeys>
+    key: PeopleKeys
+    index: number;
+    height: number;
+    width: number;
+    x: number;
+    y: number;
+    color: string
+}
+
+export type BarStackProps = {
+    width: number;
+    height: number;
+    margin?: { top: number, right: number, bottom: number, left:number};
+    events?: boolean
+}
+
+
 
 const data = salesData;
 
@@ -75,10 +79,11 @@ const result = Object.values(dataMassaged.reduce((a, c) => {
 
 
 const keys = Object.values(data.map(newData => newData.Salesperson))
-const newKeys = [...new Set(keys)]
+const newKeys = [...new Set(keys)];
 
 
-const salesTotals = result.map(day: string => {
+const salesTotals = result.map((day): number => {
+
   const total = parseInt(day.Amy.toString().replace('$', '')) + parseInt(day.Joe.toString().replace('$', ''))
   return total;
 })
@@ -101,14 +106,14 @@ const salesScale = scaleLinear<number>({
   domain: [0, Math.max(...salesTotals)],
   nice: true
 });
-const colorScale = scaleOrdinal({
+const colorScale = scaleOrdinal<string, string>({
   domain: newKeys,
   range: [green, coral, blue]
 });
 
 let tooltipTimeout: number;
 
-const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }) => {
+const SalesBarStack = ({ width, height, events = false, margin = defaultMargins }: BarStackProps) => {
   const {
     tooltipOpen,
     tooltipTop,
@@ -140,7 +145,7 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
           height={height}
           fill={background}
           rx={15}
-        />
+          />
         <Grid 
           top={margin.top}
           left={margin.left}
@@ -175,7 +180,7 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
                         width={bar.width}
                         fill={bar.color}
                         onClick={() => {
-                          if(event) alert(`Clicked: ${JSON.stringify(bar)}`)
+                          if(Event) alert(`Clicked: ${JSON.stringify(bar)}`)
                         }}
                         onMouseLeave={() => {
                           tooltipTimeout = window.setTimeout(() => {
@@ -230,7 +235,7 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
           key={Math.random()}
           top={tooltipTop}
           left={tooltipLeft}
-          styles={toolTipStyles}
+          style={toolTipStyles}
         >
           <div style={{ color: colorScale(tooltipData.key) }}>
             <strong>{tooltipData.key}</strong>
