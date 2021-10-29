@@ -33,18 +33,23 @@ const data = salesData;
 
 console.log(data, 'predata')
 
-const dataMassaged = data.map(newObj => {
+const dataBetween = data.map(newObj => {
  const returnObj = ({date: newObj.Date, product: newObj.Product, sales: newObj.Sales})
   return returnObj
 }).reduce((a, c) => {
   let x = a.find(e => e.date === c.date && e.product === c.product);
   if(!x) {
+    c.sales = parseInt(c.sales.toString().replace('$', ''));
     a.push(Object.assign({}, c))
   } else {
-    x.sales = Number(c.sales) + Number(x.sales)
+    x.sales = parseInt(c.sales.toString().replace('$', '')) + Number(x.sales)
   }
   return a
-}, []).map(newObj => {
+}, []);
+
+console.log('dataBetween', dataBetween);
+
+const dataMassaged = dataBetween.map(newObj => {
   return ({
     date: newObj.date,
     [newObj.product]: newObj.sales,
@@ -53,31 +58,37 @@ const dataMassaged = data.map(newObj => {
 
 console.log(dataMassaged, 'byProductByDateByCount')
 
-const result = Object.values(dataMassaged.reduce((a, c) => {
+const preResult = Object.values(dataMassaged.reduce((a, c) => {
     a[c.date] = Object.assign(a[c.date] || {}, c);
     return a;
 }, {}))
 
-console.log(result, 'results')
+// console.log(result, 'results')
 
 const keys = Object.values(data.map(newData => newData.Product))
 const newKeys = [...new Set(keys)];
-const poppedKeys = newKeys.pop();
+// const poppedKeys = newKeys.pop();
 
-console.log(poppedKeys, 'keys')
-
+const result = preResult.map(day => {
+  newKeys.forEach(key => {
+    if (day[key] === undefined) {
+      day[key] = 0;
+    }
+  });
+  return day;
+});
 
 // rework this and you get the first graph
-const salesTotals = result.map(newRes => {
-    const newObj = Object.values(newRes).splice(1);
-    
-    const newNewObj = newObj.map(newEle => {
-      return newEle
-    })
-  
-    return parseInt(newNewObj, 10)
-  
-  })
+const salesTotals = result.map(day => {
+  let total = 0;
+  newKeys.forEach(key => {
+    console.log(day);
+    total = day[key] ? total + day[key] : total;
+  });
+  return total;
+});
+
+console.log('totals', salesTotals);
 
 //   const salesTotals = result.map(product => {
 //     const total = Object.values(product).toString().split(',')
@@ -89,7 +100,7 @@ const salesTotals = result.map(newRes => {
 
 // const salesTotals = result.map(product => {
 //     // const total = parseInt(product.Shoes.toString().replace('$', '')) + parseInt(product.Socks.toString().replace('$', '')) + parseInt(product.Sandals.toString().replace('$', ''))
-//     
+//
 //     return totals;
 //   })
 
@@ -141,7 +152,7 @@ const SalesByProduct = ({ width, height, event = false, margin = defaultMargins 
   return width < 10 || height === 0 ? null : (
     <div style={{ position: "relative", left: '2em', top: '2em' }}>
       <svg ref={containerRef} width={width} height={height}>
-        <rect 
+        <rect
           x={0}
           y={0}
           width={width}
@@ -149,7 +160,7 @@ const SalesByProduct = ({ width, height, event = false, margin = defaultMargins 
           fill={background}
           rx={14}
         />
-        <Grid 
+        <Grid
           top={margin.top}
           left={margin.left}
           xScale={dateScale}
@@ -161,7 +172,7 @@ const SalesByProduct = ({ width, height, event = false, margin = defaultMargins 
           xOffset={dateScale.bandwidth() / 2}
         />
         <Group top={margin.top}>
-            <BarStack 
+            <BarStack
               data={result}
               keys={newKeys}
               x={getDate}
@@ -170,11 +181,11 @@ const SalesByProduct = ({ width, height, event = false, margin = defaultMargins 
               color={colorScale}
             >
               {
-                (barStacks) => 
-                  barStacks.map((barStack) => 
+                (barStacks) =>
+                  barStacks.map((barStack) =>
                     barStack.bars.map((bar) => {
                       return (
-                      <rect 
+                      <rect
                         key={`bar-stick-${barStack.index}-${bar.index}`}
                         x={bar.x}
                         y={bar.y}
@@ -216,7 +227,7 @@ const SalesByProduct = ({ width, height, event = false, margin = defaultMargins 
          fontSize: 11,
          textAnchor: "middle"
        })}
-       /> 
+       />
       </svg>
       <div style={{
         position: "absolute",
@@ -233,7 +244,7 @@ const SalesByProduct = ({ width, height, event = false, margin = defaultMargins 
         /> */}
       </div>
       {tooltipOpen && tooltipData && (
-        <TooltipInPortal 
+        <TooltipInPortal
           key={Math.random()}
           top={tooltipTop}
           left={tooltipLeft}
