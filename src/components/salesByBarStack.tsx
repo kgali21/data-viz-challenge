@@ -11,6 +11,8 @@ import { LegendOrdinal } from '@visx/legend';
 
 import salesData from '../data/dataSales.js';
 
+import { formatSalesData } from '../utilities/utilities';
+
 
 const green = '#71EEB8';
 const coral = '#FF7F50';
@@ -30,7 +32,7 @@ const toolTipStyles = {
   color: "white"
 }
 
-interface SalesByDate {
+export interface SalesByDate {
     date: string;
     Joe: number;
     Amy: number;
@@ -48,7 +50,7 @@ export type BarStackProps = {
     events?: boolean
 }
 
-type SalesData = {
+export type SalesData = {
   Date: string;
   "Item Cost": string;
   Product: string;
@@ -59,43 +61,15 @@ type SalesData = {
 
 const data: SalesData[] = salesData;
 
-const dataMassaged = data.map(newObj => {
- const returnObj = ({date: newObj.Date, salesPerson: newObj.Salesperson, sales: newObj.Sales})
-  return returnObj
-}).reduce((a: Array<string>, c: any) => {
-  let x = a.find((e: any)=> e.date === c.date && e.salesPerson === c.salesPerson);
-  if(!x) {
-    a.push(Object.assign({}, c))
-  } else {
-    (x as any).sales = Number(c.sales) + Number((x as any).sales)
-  }
-  return a
-}, []).map((newObj: any) => {
-  return ({
-    date: newObj.date,
-    [newObj.salesPerson]: newObj.sales,
-  })
-})
-
-interface Accumulator {
-  [key: string]: SalesByDate
-}
-
-const result:SalesByDate[] = Object.values(dataMassaged.reduce((a: Accumulator, c) => {
-    a[c.date] = Object.assign(a[c.date] || {}, c);
-    return a;
-}, {}))
-
+const result = formatSalesData(data);
 
 const keys: string[] = Object.values(data.map(newData => newData.Salesperson))
 const newKeys: string[] = [...new Set(keys)];
-
 
 const salesTotals = result.map((day): number => {
   const total = parseInt(day.Amy.toString().replace('$', '')) + parseInt(day.Joe.toString().replace('$', ''))
   return total;
 })
-
 
 const parseDate = timeParse("%Y-%m-%d");
 const format = timeFormat("%b %d");

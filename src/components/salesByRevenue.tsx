@@ -49,10 +49,6 @@ type SalesData = {
     Sales: string | number;
     Salesperson: string;
   }
-  
-
-
-
 
 export type BarStackProps = {
     width: number;

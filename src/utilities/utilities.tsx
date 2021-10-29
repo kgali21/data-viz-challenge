@@ -1,6 +1,11 @@
+import { SalesByDate, SalesData } from "../components/salesByBarStack";
 
+interface Accumulator {
+  [key: string]: SalesByDate
+}
 
-export default function dataMassaged = (data) = data.map(newObj => {
+export function formatSalesData(data: SalesData[]): SalesByDate[] {
+  const dataMassaged = data.map(newObj => {
     const returnObj = ({date: newObj.Date, salesPerson: newObj.Salesperson, sales: newObj.Sales})
      return returnObj
    }).reduce((a: Array<string>, c: any) => {
@@ -16,4 +21,11 @@ export default function dataMassaged = (data) = data.map(newObj => {
        date: newObj.date,
        [newObj.salesPerson]: newObj.sales,
      })
-   })
+   });
+  
+   const result:SalesByDate[] = Object.values(dataMassaged.reduce((a: Accumulator, c) => {
+    a[c.date] = Object.assign(a[c.date] || {}, c);
+    return a;
+}, {}))
+return result;
+  }
