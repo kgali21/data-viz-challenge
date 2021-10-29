@@ -6,15 +6,14 @@ import { AxisBottom, AxisRight } from '@visx/axis';
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { timeFormat, timeParse } from 'd3-time-format';
 import { useTooltipInPortal, defaultStyles, useTooltip } from '@visx/tooltip';
-// import { SeriesPoint } from '@visx/shape/lib/types';
 import { LegendOrdinal } from '@visx/legend';
 
 import salesData from '../data/dataSales.js';
 
-
 const green = '#71EEB8';
 const coral = '#FF7F50';
 const blue = '#87CEEB';
+const yellow = '#FFFF00';
 const background = 'grey'
 const defaultMargins = {
   top: 40,
@@ -32,8 +31,10 @@ const toolTipStyles = {
 
 interface SalesByDate {
     date: string;
-    Joe: number;
-    Amy: number;
+    Shoes: number;
+    Socks: number;
+    Sandals: number;
+    Sandas: number
 }
 
 interface TooltipData extends SalesByDate {
@@ -59,42 +60,64 @@ type SalesData = {
 
 const data: SalesData[] = salesData;
 
-const dataMassaged = data.map(newObj => {
- const returnObj = ({date: newObj.Date, salesPerson: newObj.Salesperson, sales: newObj.Sales})
+const dataBetween = data.map(newObj => {
+ const returnObj = ({date: newObj.Date, product: newObj.Product, sales: newObj.Sales})
   return returnObj
 }).reduce((a: Array<string>, c: any) => {
-  let x = a.find((e: any)=> e.date === c.date && e.salesPerson === c.salesPerson);
+  let x = a.find((e: any) => e.date === c.date && e.product === c.product);
   if(!x) {
+    c.sales = parseInt(c.sales.toString().replace('$', ''));
     a.push(Object.assign({}, c))
   } else {
-    (x as any).sales = Number(c.sales) + Number((x as any).sales)
+    (x as any).sales = parseInt(c.sales.toString().replace('$', '')) + Number((x as any).sales)
   }
   return a
-}, []).map((newObj: any) => {
+}, []);
+
+console.log('dataBetween', dataBetween);
+
+const dataMassaged = dataBetween.map((newObj: any) => {
   return ({
     date: newObj.date,
-    [newObj.salesPerson]: newObj.sales,
+    [newObj.product]: newObj.sales,
   })
 })
 
+console.log(dataMassaged, 'byProductByDateByCount')
+
 interface Accumulator {
-  [key: string]: SalesByDate
+    [key: string]: SalesByDate
 }
 
-const result:SalesByDate[] = Object.values(dataMassaged.reduce((a: Accumulator, c) => {
+const preResult:SalesByDate[] = Object.values(dataMassaged.reduce((a: Accumulator, c) => {
     a[c.date] = Object.assign(a[c.date] || {}, c);
     return a;
 }, {}))
 
 
-const keys: string[] = Object.values(data.map(newData => newData.Salesperson))
+const keys: string[] = Object.values(data.map(newData => newData.Product))
 const newKeys: string[] = [...new Set(keys)];
 
+const result = preResult.map((day: any) => {
+  newKeys.forEach(key => {
+    if (day[key] as any === undefined) {
+      day[key] = 0;
+    }
+  });
+  return day;
+});
 
-const salesTotals = result.map((day): number => {
-  const total = parseInt(day.Amy.toString().replace('$', '')) + parseInt(day.Joe.toString().replace('$', ''))
+const salesTotals = result.map(day => {
+  let total = 0;
+  newKeys.forEach(key => {
+    console.log(day);
+    total = day[key] ? total + day[key] : total;
+  });
   return total;
-})
+});
+
+console.log('totals', salesTotals);
+console.log(salesTotals, 'byProductSales')
 
 
 const parseDate = timeParse("%Y-%m-%d");
@@ -110,12 +133,12 @@ const salesScale = scaleLinear<number>({
 });
 const colorScale = scaleOrdinal<string, string>({
   domain: newKeys,
-  range: [green, coral, blue]
+  range: [green, coral, blue, yellow]
 });
 
 let tooltipTimeout: number;
 
-const SalesBarStack = ({ width, height, events = false, margin = defaultMargins }: BarStackProps) => {
+const SalesByProduct = ({ width, height, events = false, margin = defaultMargins }: BarStackProps) => {
   const {
     tooltipOpen,
     tooltipTop,
@@ -130,25 +153,25 @@ const SalesBarStack = ({ width, height, events = false, margin = defaultMargins 
   if(width < 10) return null;
 
   const xMax = width;
-  const yMax = height - margin.top - 50;
+  const yMax = height - margin.top - 40;
 
   dateScale.rangeRound([0, xMax]);
   salesScale.rangeRound([yMax, 0]);
 
   console.log({result, newKeys}, 'resultsNewKeys');
 
-  return width < 10 ? null : (
+  return width < 10 || height === 0 ? null : (
     <div style={{ position: "relative", left: '2em', top: '2em' }}>
       <svg ref={containerRef} width={width} height={height}>
-        <rect 
+        <rect
           x={0}
           y={0}
           width={width}
           height={height}
           fill={background}
-          rx={15}
-          />
-        <Grid 
+          rx={14}
+        />
+        <Grid
           top={margin.top}
           left={margin.left}
           xScale={dateScale}
@@ -159,9 +182,9 @@ const SalesBarStack = ({ width, height, events = false, margin = defaultMargins 
           strokeOpacity={.5}
           xOffset={dateScale.bandwidth() / 2}
         />
-        <AxisRight scale={salesScale} stroke={"black"} strokeWidth={4} left={.5} label={'Total Sales'} labelClassName="axisLabel" top={margin.top}/>
+        <AxisRight scale={(salesScale)} stroke={"black"} strokeWidth={4} left={.5} label={'Total Sales'} labelClassName="axisLabel" top={margin.top}/>
         <Group top={margin.top}>
-            <BarStack 
+            <BarStack
               data={result}
               keys={newKeys}
               x={getDate}
@@ -170,11 +193,11 @@ const SalesBarStack = ({ width, height, events = false, margin = defaultMargins 
               color={colorScale}
             >
               {
-                (barStacks) => 
-                  barStacks.map((barStack) => 
+                (barStacks) =>
+                  barStacks.map((barStack) =>
                     barStack.bars.map((bar) => {
                       return (
-                      <rect 
+                      <rect
                         key={`bar-stick-${barStack.index}-${bar.index}`}
                         x={bar.x}
                         y={bar.y}
@@ -197,7 +220,7 @@ const SalesBarStack = ({ width, height, events = false, margin = defaultMargins 
                             tooltipData: bar,
                             tooltipTop: top,
                             tooltipLeft: left
-                          } as any)
+                          }as any)
                         }}
                       />
                     )})
@@ -216,7 +239,7 @@ const SalesBarStack = ({ width, height, events = false, margin = defaultMargins 
          fontSize: 11,
          textAnchor: "middle"
        })}
-       /> 
+       />
       </svg>
       <div style={{
         position: "absolute",
@@ -233,18 +256,18 @@ const SalesBarStack = ({ width, height, events = false, margin = defaultMargins 
         />
       </div>
       {tooltipOpen && tooltipData && (
-        <TooltipInPortal 
+        <TooltipInPortal
           key={Math.random()}
           top={tooltipTop}
           left={tooltipLeft}
           style={toolTipStyles}
         >
           <div style={{ color: colorScale(tooltipData.key) }}>
-            <strong>{tooltipData.date}</strong>
+            <strong>{tooltipData.key}</strong>
           </div>
-          <div>{tooltipData.bar.data[tooltipData.key]} sales</div>
+          <div>{tooltipData.bar.data[tooltipData.key]} salesCount</div>
           <div>
-            <small>{formatDate(getDate(tooltipData))}</small>
+            <small>{formatDate(getDate(tooltipData.bar.data))}</small>
           </div>
         </TooltipInPortal>
       )}
@@ -252,4 +275,4 @@ const SalesBarStack = ({ width, height, events = false, margin = defaultMargins 
   );
 };
 
-export default SalesBarStack;
+export default SalesByProduct;

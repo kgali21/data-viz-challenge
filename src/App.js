@@ -1,19 +1,14 @@
 // import './App.css';
 import './appToo.css'
 import SalesBarStack from './components/salesByBarStack.tsx';
-
-// import SalesByDay from './components/salesByDayBasicBar.js';
-// import SalesByDayChart from './components/salesByDayStacked.js';
-// import SalesBarStack from './components/salesByBarStack.js';
-import RevenueBarStack from './components/salesByRevenue.js';
-import SalesByProduct from './components/salesCountByProduct';
+import RevenueBarStack from './components/salesByRevenue.tsx';
+import SalesByProduct from './components/salesCountByProduct.tsx';
 
 function App() {
   return (
     <>
     <div  className="graphContainer">
       <div className="list">
-        {/* <SalesBarStack width={500} height={500} event={false} /> */}
         <SalesBarStack width={500} height={500} event={false}/>
       </div>
       <div>

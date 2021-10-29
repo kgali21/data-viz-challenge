@@ -6,11 +6,9 @@ import { AxisBottom, AxisRight } from '@visx/axis';
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { timeFormat, timeParse } from 'd3-time-format';
 import { useTooltipInPortal, defaultStyles, useTooltip } from '@visx/tooltip';
-// import { SeriesPoint } from '@visx/shape/lib/types';
 import { LegendOrdinal } from '@visx/legend';
 
 import salesData from '../data/dataSales.js';
-
 
 const green = '#71EEB8';
 const coral = '#FF7F50';
@@ -37,9 +35,24 @@ interface SalesByDate {
 }
 
 interface TooltipData extends SalesByDate {
-  bar?: any;
-  key?: any;
-}
+    bar?: any;
+    key?: any;
+  }
+
+const data: SalesData[] = salesData;
+
+type SalesData = {
+    Date: string;
+    "Item Cost": string;
+    Product: string;
+    Revenue: string;
+    Sales: string | number;
+    Salesperson: string;
+  }
+  
+
+
+
 
 export type BarStackProps = {
     width: number;
@@ -48,54 +61,40 @@ export type BarStackProps = {
     events?: boolean
 }
 
-type SalesData = {
-  Date: string;
-  "Item Cost": string;
-  Product: string;
-  Revenue: string;
-  Sales: string | number;
-  Salesperson: string;
-}
-
-const data: SalesData[] = salesData;
-
 const dataMassaged = data.map(newObj => {
- const returnObj = ({date: newObj.Date, salesPerson: newObj.Salesperson, sales: newObj.Sales})
+ const returnObj = ({date: newObj.Date, salesPerson: newObj.Salesperson, revenue: newObj.Revenue.slice(1)})
   return returnObj
 }).reduce((a: Array<string>, c: any) => {
-  let x = a.find((e: any)=> e.date === c.date && e.salesPerson === c.salesPerson);
+  let x = a.find((e: any) => e.date === c.date && e.salesPerson === c.salesPerson);
   if(!x) {
     a.push(Object.assign({}, c))
   } else {
-    (x as any).sales = Number(c.sales) + Number((x as any).sales)
+    (x as any).sales = Number(c.revenue) + Number((x as any).revenue)
   }
   return a
 }, []).map((newObj: any) => {
   return ({
     date: newObj.date,
-    [newObj.salesPerson]: newObj.sales,
+    [newObj.salesPerson]: newObj.revenue,
   })
 })
 
 interface Accumulator {
-  [key: string]: SalesByDate
+    [key: string]: SalesByDate
 }
 
-const result:SalesByDate[] = Object.values(dataMassaged.reduce((a: Accumulator, c) => {
+const result: SalesByDate[] = Object.values(dataMassaged.reduce((a: Accumulator, c) => {
     a[c.date] = Object.assign(a[c.date] || {}, c);
     return a;
 }, {}))
 
+const keys = Object.values(data.map(newData => newData.Salesperson))
+const newKeys = [...new Set(keys)]
 
-const keys: string[] = Object.values(data.map(newData => newData.Salesperson))
-const newKeys: string[] = [...new Set(keys)];
-
-
-const salesTotals = result.map((day): number => {
-  const total = parseInt(day.Amy.toString().replace('$', '')) + parseInt(day.Joe.toString().replace('$', ''))
-  return total;
-})
-
+const salesTotals = result.map(day => {
+    const total = parseInt(day.Amy.toString().replace('$', '')) + parseInt(day.Joe.toString().replace('$', ''))
+    return total;
+  })
 
 const parseDate = timeParse("%Y-%m-%d");
 const format = timeFormat("%b %d");
@@ -105,7 +104,7 @@ const getDate = (d: SalesByDate) => d.date;
 
 const dateScale = scaleBand<string>({ domain: result.map(getDate), padding: .3 });
 const salesScale = scaleLinear<number>({
-  domain: [0, Math.max(...salesTotals)],
+  domain: [0, Math.max(...salesTotals) * 2],
   nice: true
 });
 const colorScale = scaleOrdinal<string, string>({
@@ -115,7 +114,7 @@ const colorScale = scaleOrdinal<string, string>({
 
 let tooltipTimeout: number;
 
-const SalesBarStack = ({ width, height, events = false, margin = defaultMargins }: BarStackProps) => {
+const RevenueBarStack = ({ width, height, events = false, margin = defaultMargins }: BarStackProps) => {
   const {
     tooltipOpen,
     tooltipTop,
@@ -130,7 +129,7 @@ const SalesBarStack = ({ width, height, events = false, margin = defaultMargins 
   if(width < 10) return null;
 
   const xMax = width;
-  const yMax = height - margin.top - 50;
+  const yMax = height - margin.top - 40;
 
   dateScale.rangeRound([0, xMax]);
   salesScale.rangeRound([yMax, 0]);
@@ -146,8 +145,8 @@ const SalesBarStack = ({ width, height, events = false, margin = defaultMargins 
           width={width}
           height={height}
           fill={background}
-          rx={15}
-          />
+          rx={14}
+        />
         <Grid 
           top={margin.top}
           left={margin.left}
@@ -159,7 +158,7 @@ const SalesBarStack = ({ width, height, events = false, margin = defaultMargins 
           strokeOpacity={.5}
           xOffset={dateScale.bandwidth() / 2}
         />
-        <AxisRight scale={salesScale} stroke={"black"} strokeWidth={4} left={.5} label={'Total Sales'} labelClassName="axisLabel" top={margin.top}/>
+        <AxisRight scale={salesScale} stroke={"black"} strokeWidth={4} left={.5} label={'Total Revenue'} labelClassName="axisLabel" top={margin.top}/>
         <Group top={margin.top}>
             <BarStack 
               data={result}
@@ -192,7 +191,7 @@ const SalesBarStack = ({ width, height, events = false, margin = defaultMargins 
                         onMouseMove={(event) => {
                           if (tooltipTimeout) clearTimeout(tooltipTimeout);
                           const top = event.clientY;
-                          const left = bar.x + bar.width;
+                          const left = bar.x;
                           showTooltip({
                             tooltipData: bar,
                             tooltipTop: top,
@@ -240,9 +239,9 @@ const SalesBarStack = ({ width, height, events = false, margin = defaultMargins 
           style={toolTipStyles}
         >
           <div style={{ color: colorScale(tooltipData.key) }}>
-            <strong>{tooltipData.date}</strong>
+            <strong>{tooltipData.key}</strong>
           </div>
-          <div>{tooltipData.bar.data[tooltipData.key]} sales</div>
+          <div>${tooltipData.bar.data[tooltipData.key]} in Revenue</div>
           <div>
             <small>{formatDate(getDate(tooltipData))}</small>
           </div>
@@ -252,4 +251,4 @@ const SalesBarStack = ({ width, height, events = false, margin = defaultMargins 
   );
 };
 
-export default SalesBarStack;
+export default RevenueBarStack;
