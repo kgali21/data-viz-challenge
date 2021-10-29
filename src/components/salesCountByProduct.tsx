@@ -9,6 +9,7 @@ import { useTooltipInPortal, defaultStyles, useTooltip } from '@visx/tooltip';
 import { LegendOrdinal } from '@visx/legend';
 
 import salesData from '../data/dataSales.js';
+import { formatSalesByProductData } from '../utilities/utilities';
 
 const green = '#71EEB8';
 const coral = '#FF7F50';
@@ -29,7 +30,7 @@ const toolTipStyles = {
   color: "white"
 }
 
-interface SalesByDate {
+export interface ProductsByDate {
     date: string;
     Shoes: number;
     Socks: number;
@@ -37,7 +38,7 @@ interface SalesByDate {
     Sandas: number
 }
 
-interface TooltipData extends SalesByDate {
+interface TooltipData extends ProductsByDate {
   bar?: any;
   key?: any;
 }
@@ -60,58 +61,17 @@ type SalesData = {
 
 const data: SalesData[] = salesData;
 
-const dataBetween = data.map(newObj => {
- const returnObj = ({date: newObj.Date, product: newObj.Product, sales: newObj.Sales})
-  return returnObj
-}).reduce((a: Array<string>, c: any) => {
-  let x = a.find((e: any) => e.date === c.date && e.product === c.product);
-  if(!x) {
-    c.sales = parseInt(c.sales.toString().replace('$', ''));
-    a.push(Object.assign({}, c))
-  } else {
-    (x as any).sales = parseInt(c.sales.toString().replace('$', '')) + Number((x as any).sales)
-  }
-  return a
-}, []);
-
-console.log('dataBetween', dataBetween);
-
-const dataMassaged = dataBetween.map((newObj: any) => {
-  return ({
-    date: newObj.date,
-    [newObj.product]: newObj.sales,
-  })
-})
-
-console.log(dataMassaged, 'byProductByDateByCount')
-
-interface Accumulator {
-    [key: string]: SalesByDate
-}
-
-const preResult:SalesByDate[] = Object.values(dataMassaged.reduce((a: Accumulator, c) => {
-    a[c.date] = Object.assign(a[c.date] || {}, c);
-    return a;
-}, {}))
-
 
 const keys: string[] = Object.values(data.map(newData => newData.Product))
 const newKeys: string[] = [...new Set(keys)];
 
-const result = preResult.map((day: any) => {
-  newKeys.forEach(key => {
-    if (day[key] as any === undefined) {
-      day[key] = 0;
-    }
-  });
-  return day;
-});
-
+const result = formatSalesByProductData(data, newKeys);
+console.log('resulttesting', result)
 const salesTotals = result.map(day => {
   let total = 0;
   newKeys.forEach(key => {
     console.log(day);
-    total = day[key] ? total + day[key] : total;
+    total = (day as any)[key]? total + (day as any)[key] : total;
   });
   return total;
 });
@@ -124,7 +84,7 @@ const parseDate = timeParse("%Y-%m-%d");
 const format = timeFormat("%b %d");
 const formatDate = (date: string) => format(parseDate(date) as Date);
 
-const getDate = (d: SalesByDate) => d.date;
+const getDate = (d: ProductsByDate) => d.date;
 
 const dateScale = scaleBand<string>({ domain: result.map(getDate), padding: .3 });
 const salesScale = scaleLinear<number>({

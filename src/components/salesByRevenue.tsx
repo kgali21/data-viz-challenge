@@ -9,6 +9,7 @@ import { useTooltipInPortal, defaultStyles, useTooltip } from '@visx/tooltip';
 import { LegendOrdinal } from '@visx/legend';
 
 import salesData from '../data/dataSales.js';
+import { formatRevenueData } from '../utilities/utilities';
 
 const green = '#71EEB8';
 const coral = '#FF7F50';
@@ -57,32 +58,7 @@ export type BarStackProps = {
     events?: boolean
 }
 
-const dataMassaged = data.map(newObj => {
- const returnObj = ({date: newObj.Date, salesPerson: newObj.Salesperson, revenue: newObj.Revenue.slice(1)})
-  return returnObj
-}).reduce((a: Array<string>, c: any) => {
-  let x = a.find((e: any) => e.date === c.date && e.salesPerson === c.salesPerson);
-  if(!x) {
-    a.push(Object.assign({}, c))
-  } else {
-    (x as any).sales = Number(c.revenue) + Number((x as any).revenue)
-  }
-  return a
-}, []).map((newObj: any) => {
-  return ({
-    date: newObj.date,
-    [newObj.salesPerson]: newObj.revenue,
-  })
-})
-
-interface Accumulator {
-    [key: string]: SalesByDate
-}
-
-const result: SalesByDate[] = Object.values(dataMassaged.reduce((a: Accumulator, c) => {
-    a[c.date] = Object.assign(a[c.date] || {}, c);
-    return a;
-}, {}))
+const result = formatRevenueData(data);
 
 const keys = Object.values(data.map(newData => newData.Salesperson))
 const newKeys = [...new Set(keys)]
