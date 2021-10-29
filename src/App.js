@@ -1,9 +1,10 @@
 // import './App.css';
 import './appToo.css'
+import SalesBarStack from './components/salesByBarStack.tsx';
 
 // import SalesByDay from './components/salesByDayBasicBar.js';
 // import SalesByDayChart from './components/salesByDayStacked.js';
-import SalesBarStack from './components/salesByBarStack.js';
+// import SalesBarStack from './components/salesByBarStack.js';
 import RevenueBarStack from './components/salesByRevenue.js';
 import SalesByProduct from './components/salesCountByProduct';
 
@@ -12,7 +13,8 @@ function App() {
     <>
     <div  className="graphContainer">
       <div className="list">
-        <SalesBarStack width={500} height={500} event={false} />
+        {/* <SalesBarStack width={500} height={500} event={false} /> */}
+        <SalesBarStack width={500} height={500} event={false}/>
       </div>
       <div>
         <RevenueBarStack width={500} height={500} event={false} />

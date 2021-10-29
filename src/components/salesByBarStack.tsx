@@ -6,7 +6,7 @@ import { AxisBottom, AxisRight } from '@visx/axis';
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { timeFormat, timeParse } from 'd3-time-format';
 import { useTooltipInPortal, defaultStyles, useTooltip } from '@visx/tooltip';
-import { SeriesPoint } from '@visx/shape/lib/types';
+// import { SeriesPoint } from '@visx/shape/lib/types';
 import { LegendOrdinal } from '@visx/legend';
 
 import salesData from '../data/dataSales.js';
@@ -30,16 +30,10 @@ const toolTipStyles = {
   color: "white"
 }
 
-type PeopleKeys = typeof newKeys
 type TooltipData = {
-    bar: SeriesPoint<PeopleKeys>
-    key: PeopleKeys
-    index: number;
-    height: number;
-    width: number;
-    x: number;
-    y: number;
-    color: string
+    date: string;
+    Joe: number;
+    Amy: number;
 }
 
 export type BarStackProps = {
@@ -49,23 +43,20 @@ export type BarStackProps = {
     events?: boolean
 }
 
-
-
 const data = salesData;
-
 
 const dataMassaged = data.map(newObj => {
  const returnObj = ({date: newObj.Date, salesPerson: newObj.Salesperson, sales: newObj.Sales})
   return returnObj
-}).reduce((a, c) => {
-  let x = a.find(e => e.date === c.date && e.salesPerson === c.salesPerson);
+}).reduce((a: Array<string>, c: any) => {
+  let x = a.find((e: any)=> e.date === c.date && e.salesPerson === c.salesPerson);
   if(!x) {
     a.push(Object.assign({}, c))
   } else {
     x.sales = Number(c.sales) + Number(x.sales)
   }
   return a
-}, []).map(newObj => {
+}, []).map((newObj: any) => {
   return ({
     date: newObj.date,
     [newObj.salesPerson]: newObj.sales,
@@ -97,9 +88,9 @@ const salesTotals = result.map((day): number => {
 
 const parseDate = timeParse("%Y-%m-%d");
 const format = timeFormat("%b %d");
-const formatDate = (date) => format(parseDate(date) as Date);
+const formatDate = (date: string) => format(parseDate(date));
 
-const getDate = (d) => d.date;
+const getDate = (d: string) => d.Date;
 
 const dateScale = scaleBand<string>({ domain: result.map(getDate), padding: .3 });
 const salesScale = scaleLinear<number>({
