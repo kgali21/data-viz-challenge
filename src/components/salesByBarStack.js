@@ -2,11 +2,11 @@ import React from 'react';
 import { BarStack } from '@visx/shape';
 import { Group } from '@visx/group';
 import { Grid } from '@visx/grid';
-import { AxisBottom } from '@visx/axis';
+import { AxisBottom, AxisRight } from '@visx/axis';
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { timeFormat, timeParse } from 'd3-time-format';
 import { useTooltipInPortal, defaultStyles, useTooltip } from '@visx/tooltip';
-// import { LegendOrdinal } from '@visx/legend';
+import { LegendOrdinal } from '@visx/legend';
 
 import salesData from '../data/dataSales.js';
 
@@ -30,7 +30,6 @@ const toolTipStyles = {
 
 const data = salesData;
 
-// console.log(data, 'predata')
 
 const dataMassaged = data.map(newObj => {
  const returnObj = ({date: newObj.Date, salesPerson: newObj.Salesperson, sales: newObj.Sales})
@@ -55,30 +54,10 @@ const result = Object.values(dataMassaged.reduce((a, c) => {
     return a;
 }, {}))
 
-// console.log(result, 'results')
-// const salesPersonSales = newObject.Sales.includes('$') ? parseInt(newObject.Sales.slice(1)) : parseInt(newObject.Sales, 10)
-// x.sales.includes('$') ? parseInt(x.sales.slice(1)) + parseInt(c.sales.slice(1)) : parseInt(x.sales, 10) + parseInt(c.sales, 10)
 
 const keys = Object.values(data.map(newData => newData.Salesperson))
 const newKeys = [...new Set(keys)]
 
-// console.log(newKeys, 'keys')
-
-
-// rework this and you get the first graph
-// const salesTotals = result.map(newRes => {
-//   const newObj = Object.values(newRes).splice(1);
-  
-//   const newNewObj = newObj.map(newEle => {
-//     return newEle
-//   })
-
-//   if(newNewObj.includes('$')){
-//     return parseInt(newNewObj.slice(1), newNewObj.slice(1))
-//   } else {
-//     return parseInt(newNewObj, 10)
-//   }
-// })
 
 const salesTotals = result.map(day => {
   const total = parseInt(day.Amy.toString().replace('$', '')) + parseInt(day.Joe.toString().replace('$', ''))
@@ -91,7 +70,7 @@ const formatDate = (date) => format(parseDate(date));
 
 const getDate = (d) => d.date;
 
-const dateScale = scaleBand({ domain: result.map(getDate), padding: .075 });
+const dateScale = scaleBand({ domain: result.map(getDate), padding: .3 });
 const salesScale = scaleLinear({
   domain: [0, Math.max(...salesTotals)],
   nice: true
@@ -118,7 +97,7 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
   if(width < 10) return null;
 
   const xMax = width;
-  const yMax = height - margin.top - 40;
+  const yMax = height - margin.top - 50;
 
   dateScale.rangeRound([0, xMax]);
   salesScale.rangeRound([yMax, 0]);
@@ -134,7 +113,7 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
           width={width}
           height={height}
           fill={background}
-          rx={14}
+          rx={15}
         />
         <Grid 
           top={margin.top}
@@ -147,6 +126,7 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
           strokeOpacity={.5}
           xOffset={dateScale.bandwidth() / 2}
         />
+        <AxisRight scale={salesScale} stroke={"black"} strokeWidth={4} left={.5} label={'Total Sales'} labelClassName="axisLabel" top={margin.top}/>
         <Group top={margin.top}>
             <BarStack 
               data={result}
@@ -213,11 +193,11 @@ const SalesBarStack = ({ width, height, event = false, margin = defaultMargins }
         justifyContent: "center",
         fontSize: 14
       }}>
-        {/* <LegendOrdinal
+        <LegendOrdinal
           scale={colorScale}
           direction="row"
           labelMargin="0 15px 0 0"
-        /> */}
+        />
       </div>
       {tooltipOpen && tooltipData && (
         <TooltipInPortal 

@@ -2,11 +2,11 @@ import React from 'react';
 import { BarStack } from '@visx/shape';
 import { Group } from '@visx/group';
 import { Grid } from '@visx/grid';
-import { AxisBottom } from '@visx/axis';
+import { AxisBottom, AxisRight } from '@visx/axis';
 import { scaleBand, scaleLinear, scaleOrdinal } from '@visx/scale';
 import { timeFormat, timeParse } from 'd3-time-format';
 import { useTooltipInPortal, defaultStyles, useTooltip } from '@visx/tooltip';
-// import { LegendOrdinal } from '@visx/legend';
+import { LegendOrdinal } from '@visx/legend';
 
 import salesData from '../data/dataSales.js';
 
@@ -89,24 +89,7 @@ const salesTotals = result.map(day => {
 });
 
 console.log('totals', salesTotals);
-
-//   const salesTotals = result.map(product => {
-//     const total = Object.values(product).toString().split(',')
-//     const newProduct = total.map(newVals => {
-//         return parseInt(newVals.replace('$', ''))
-//     }).slice(1)
-//     return newProduct;
-//   })
-
-// const salesTotals = result.map(product => {
-//     // const total = parseInt(product.Shoes.toString().replace('$', '')) + parseInt(product.Socks.toString().replace('$', '')) + parseInt(product.Sandals.toString().replace('$', ''))
-//
-//     return totals;
-//   })
-
-
-
-  console.log(salesTotals, 'byProductSales')
+console.log(salesTotals, 'byProductSales')
 
 
 const parseDate = timeParse("%Y-%m-%d");
@@ -171,6 +154,7 @@ const SalesByProduct = ({ width, height, event = false, margin = defaultMargins 
           strokeOpacity={.5}
           xOffset={dateScale.bandwidth() / 2}
         />
+        <AxisRight scale={salesScale} stroke={"black"} strokeWidth={4} left={.5} label={'Total Sales'} labelClassName="axisLabel" top={margin.top}/>
         <Group top={margin.top}>
             <BarStack
               data={result}
@@ -237,11 +221,11 @@ const SalesByProduct = ({ width, height, event = false, margin = defaultMargins 
         justifyContent: "center",
         fontSize: 14
       }}>
-        {/* <LegendOrdinal
+        <LegendOrdinal
           scale={colorScale}
           direction="row"
           labelMargin="0 15px 0 0"
-        /> */}
+        />
       </div>
       {tooltipOpen && tooltipData && (
         <TooltipInPortal
